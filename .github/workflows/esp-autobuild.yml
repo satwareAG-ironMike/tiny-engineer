@@ -2,12 +2,13 @@
 # native Unity host tests. Artifacts: firmware.bin per target.
 #
 # Pinning: actions are pinned by immutable commit SHA (release tag immutability
-# rule). v5 (Node 24) to avoid the Node 20 deprecation annotation. SHAs
-# verified via `git ls-remote https://github.com/<repo> refs/tags/v5`:
-#   checkout v5          fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
-#   setup-python v5      a26af69be951a213d495a4c3e4e4022e16d87065
-#   cache v5             caa296126883cff596d87d8935842f9db880ef25
-#   upload-artifact v5   330a01c490aca151604b8cf639adc76d48f6c5d4
+# rule), on Node 24 builds where the publisher offers them, to keep the
+# runs free of "Node.js 20 is deprecated" annotations. SHAs verified via
+# `git ls-remote https://github.com/<repo> refs/tags/<v>`:
+#   checkout v5          fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09  (node24)
+#   setup-python v5      a26af69be951a213d495a4c3e4e4022e16d87065  (node20: no node24 tag exists in the v5 line yet - annotation unavoidable until the action publishes one)
+#   cache v5             caa296126883cff596d87d8935842f9db880ef25  (node24)
+#   upload-artifact v6   b7c566a772e6b6bfb58ed0dc250532a479d7789f  (node24)
 #
 # NOTE: `main` only builds the ESP32-C3 env until the multi-arch work lands.
 # Once merged, remove `docs/fork-state` from the push trigger list.
@@ -57,13 +58,13 @@ jobs:
         run: pio test -e native
 
       - name: Upload firmware (ESP32-C3)
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: firmware-esp32-c3
           path: .pio/build/esp32-c3-devkitm-1/firmware.bin
 
       - name: Upload firmware (ESP32 classic)
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: firmware-esp32-classic
           path: .pio/build/esp32dev/firmware.bin

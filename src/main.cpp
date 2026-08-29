@@ -29,7 +29,10 @@ void setup() {
   initServoOutputPin();
 
   Serial.begin(115200);
+#if defined(CONFIG_SOC_USB_SERIAL_JTAG_SUPPORTED)
+  // Non-blocking CDC writes (ESP32-C3/S3); classic UART0 has no such knob.
   Serial.setTxTimeoutMs(0);
+#endif
   delay(1000);
 
   initSettings();
@@ -45,8 +48,10 @@ void setup() {
 
   serialLogPrintln();
   serialLogPrintln("Starting I2C");
-  serialLogPrintln("SDA = GP0");
-  serialLogPrintln("SCL = GP1");
+  serialLogPrint("SDA = ");
+  serialLogPrintln(I2C_SDA);
+  serialLogPrint("SCL = ");
+  serialLogPrintln(I2C_SCL);
 
   Wire.begin(
     I2C_SDA,

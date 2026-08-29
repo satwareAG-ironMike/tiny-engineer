@@ -1,5 +1,8 @@
 #include <Arduino.h>
+
+#if defined(CONFIG_IDF_TARGET_ESP32C3)
 #include "esp32-hal-rgb-led.h"
+#endif
 
 #include "animation.h"
 #include "network/wifi_connect.h"
@@ -52,8 +55,17 @@ bool sameColor(uint8_t r1, uint8_t g1, uint8_t b1, uint8_t r2, uint8_t g2, uint8
 }
 
 void writeRgb(uint8_t r, uint8_t g, uint8_t b) {
+#if defined(CONFIG_IDF_TARGET_ESP32C3)
   // Waveshare ESP32-C3-Zero onboard WS2812 uses GRB byte order.
   rgbLedWriteOrdered(RGB_LED_PIN, LED_COLOR_ORDER_GRB, r, g, b);
+#else
+  // Classic devkit: optional wired active-HIGH LED shows the
+  // brightest channel; no-op when RGB_LED_PRESENT is false.
+  if (RGB_LED_PRESENT) {
+    const uint8_t level = max(r, max(g, b));
+    digitalWrite(RGB_LED_PIN, level != 0 ? HIGH : LOW);
+  }
+#endif
   g_currentR = r;
   g_currentG = g;
   g_currentB = b;

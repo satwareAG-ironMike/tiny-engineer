@@ -62,3 +62,6 @@ dkms.conf
 
 # debug information files
 *.dwo
+
+# Local research (satware-internal, may contain personal data - not part of upstream mirror)
+/docs/research/

@@ -2,11 +2,12 @@
 # native Unity host tests. Artifacts: firmware.bin per target.
 #
 # Pinning: actions are pinned by immutable commit SHA (release tag immutability
-# rule). SHAs verified via `git ls-remote https://github.com/<repo> refs/tags/v4`:
-#   checkout v4          11d5960a326750d5838078e36cf38b85af677262
-#   setup-python v4      7f4fc3e22c37d6ff65e88745f38bd3157c663f7c
-#   cache v4             0057852bfaa89a56745cba8c7296529d2fc39830
-#   upload-artifact v4   ea165f8d65b6e75b540449e92b4886f43607fa02
+# rule). v5 (Node 24) to avoid the Node 20 deprecation annotation. SHAs
+# verified via `git ls-remote https://github.com/<repo> refs/tags/v5`:
+#   checkout v5          fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+#   setup-python v5      a26af69be951a213d495a4c3e4e4022e16d87065
+#   cache v5             caa296126883cff596d87d8935842f9db880ef25
+#   upload-artifact v5   330a01c490aca151604b8cf639adc76d48f6c5d4
 #
 # NOTE: `main` only builds the ESP32-C3 env until the multi-arch work lands.
 # Once merged, remove `docs/fork-state` from the push trigger list.
@@ -30,15 +31,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
       - name: Set up Python
-        uses: actions/setup-python@7f4fc3e22c37d6ff65e88745f38bd3157c663f7c # v4
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: '3.12'
 
       - name: Cache PlatformIO packages
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
         with:
           path: ~/.platformio
           key: platformio-${{ runner.os }}-${{ hashFiles('platformio.ini') }}
@@ -56,13 +57,13 @@ jobs:
         run: pio test -e native
 
       - name: Upload firmware (ESP32-C3)
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
           name: firmware-esp32-c3
           path: .pio/build/esp32-c3-devkitm-1/firmware.bin
 
       - name: Upload firmware (ESP32 classic)
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
           name: firmware-esp32-classic
           path: .pio/build/esp32dev/firmware.bin

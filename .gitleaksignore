@@ -1,0 +1,5 @@
+# Fingerprint suppression (git history scan mode).
+# Upstream doc example (commit bf686e8 "add auth") contains a placeholder
+# token in a curl example in docs/api.md - not a real credential.
+# Suppressed by fingerprint, not by path, so real findings in that file still report.
+bf686e8212597f67d2643347b947521965d98ea6:docs/api.md:curl-auth-header:50

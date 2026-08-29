@@ -7,6 +7,9 @@ cursor_events.log
 # platform.io
 .pio
 
+# Generated audio payload, rebuilt from assets/ by scripts/copy_assets.py (pre-build)
+data/
+
 # Prerequisites
 *.d
 

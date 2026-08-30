@@ -16,7 +16,7 @@ show_help() {
 gate-check-sod.sh SUBCOMMAND - SOD/OSINT gate oracles (2026-08-29)
 
 Subcommands:
-  drift     local fork is a clean mirror of jamro/main (0/0) and HEAD == origin/main
+  drift     main is the exact upstream mirror (main...jamro/main 0/0, branch-independent)
   forks     no non-satware fork ahead of upstream; runs selftest (negative control) first
   selftest  negative control: parser must reject ahead_by=1, accept ahead_by=0
   report    daily-ops file contains all required OSINT report sections
@@ -50,14 +50,15 @@ cmd_selftest() {
 }
 
 cmd_drift() {
-  local counts expected head origin
-  counts="$(git -C "$REPO_DIR" rev-list --left-right --count HEAD...jamro/main)" \
+  # Invariant: the main branch is an exact mirror of upstream jamro/main.
+  # Anchored on the main ref (not HEAD) so it is branch-independent and stays
+  # green while work lands on feature branches; the per-branch HEAD/origin sync
+  # is a separate concern (see the GIT-CLEAN-IN-SYNC gate, not this one).
+  local counts expected
+  counts="$(git -C "$REPO_DIR" rev-list --left-right --count main...jamro/main)" \
     || fail "rev-list failed (fetch jamro/* refs first)"
   expected="$(printf '0\t0')"
-  [[ "$counts" == "$expected" ]] || fail "drift not 0/0: $counts"
-  head="$(git -C "$REPO_DIR" rev-parse HEAD)"
-  origin="$(git -C "$REPO_DIR" rev-parse origin/main)"
-  [[ "$head" == "$origin" ]] || fail "HEAD ($head) != origin/main ($origin)"
+  [[ "$counts" == "$expected" ]] || fail "main drifts from upstream: $counts"
   echo "drift OK"
 }
 

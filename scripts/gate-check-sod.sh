@@ -16,14 +16,14 @@ show_help() {
 gate-check-sod.sh SUBCOMMAND - SOD/OSINT gate oracles (2026-08-29)
 
 Subcommands:
-  drift     main is not behind upstream jamro/main (fork's ahead commits are work, not drift)
+  drift     main is not behind upstream jamro/main (live fetch; ahead commits are work, not drift)
   forks     no non-satware fork ahead of upstream; runs selftest (negative control) first
   selftest  negative control: parser must reject ahead_by=1, accept ahead_by=0
   report    daily-ops file contains all required OSINT report sections
    sod       daily-ops file contains SOD state under the sod marker
    issue     issue #1 closed per API, fix commit in objects, both recorded in report
    protect   exactly one active branch ruleset on main, deletion/force_push/non_fast_forward enabled
-   branch    working branch on origin with report committed; main still exact mirror
+   branch    post-merge: origin/main not behind upstream; fork-state doc + privacy guards hold
    verdict   final verdict + infra actions recorded in daily-ops file
 
 Exit 0 + token on success; exit 1 + FAIL message on failure.
@@ -49,6 +49,17 @@ cmd_selftest() {
   echo "selftest OK"
 }
 
+# Fetch the live upstream head and print "<ahead>\t<behind>" of $1 vs upstream.
+# The refs/remotes/jamro/main ref is orphaned (no jamro remote is configured in
+# a fresh clone), so a comparison against it goes stale the moment upstream
+# moves - a URL fetch updates FETCH_HEAD, not that ref (false-green trap).
+# Fetching per run and comparing FETCH_HEAD is stale-proof by construction.
+upstream_counts() {
+  git -C "$REPO_DIR" fetch --quiet https://github.com/jamro/tiny-engineer main \
+    || { echo "upstream fetch failed (offline?) - cannot verify freshness" >&2; return 1; }
+  git -C "$REPO_DIR" rev-list --left-right --count "$1...FETCH_HEAD"
+}
+
 cmd_drift() {
   # Invariant (post-merge): main must not sit BEHIND upstream jamro/main
   # (missed upstream commits = a sync is due: fetch + ff-merge). Ahead
@@ -57,8 +68,8 @@ cmd_drift() {
   # Anchored on the main ref (not HEAD) so it is branch-independent; the
   # per-branch HEAD/origin sync is a separate gate (not this one).
   local counts ahead behind
-  counts="$(git -C "$REPO_DIR" rev-list --left-right --count main...jamro/main)" \
-    || fail "rev-list failed (fetch jamro/* refs first)"
+  counts="$(upstream_counts main)" \
+    || fail "upstream fetch failed - cannot verify drift"
   read -r ahead behind <<<"$counts" || true
   [[ "$behind" == "0" ]] \
     || fail "main is $behind behind upstream jamro/main (fetch + ff-merge the upstream sync): $counts"
@@ -184,24 +195,22 @@ cmd_protect() {
 }
 
 cmd_branch() {
-  git -C "$REPO_DIR" fetch origin "$WORK_BRANCH" --quiet \
-    || fail "fetch of $WORK_BRANCH failed (not pushed?)"
-  git -C "$REPO_DIR" rev-parse --verify "origin/$WORK_BRANCH" >/dev/null 2>&1 \
-    || fail "origin/$WORK_BRANCH missing"
-  local counts
-  counts="$(git -C "$REPO_DIR" rev-list --left-right --count origin/main...jamro/main)" \
-    || fail "rev-list failed"
-  [[ "$counts" == "$(printf '0\t0')" ]] || fail "origin/main no longer exact mirror: $counts"
-  # fork-state doc committed on the branch
-  git -C "$REPO_DIR" show "origin/$WORK_BRANCH:docs/fork-state.md" \
-    | grep -qF 'exact mirror' || fail "docs/fork-state.md not committed on $WORK_BRANCH"
+  # Post-merge form: the working branch merged into main and was deleted, so
+  # the durable checks are sync state plus the privacy guards on origin/main.
+  local counts behind
+  counts="$(upstream_counts origin/main)" || fail "upstream fetch failed - cannot verify branch state"
+  read -r _ behind <<<"$counts" || true
+  [[ "$behind" == "0" ]] || fail "origin/main is $behind behind upstream jamro/main: $counts"
+  # fork-state doc committed on main (the public fork-state record)
+  git -C "$REPO_DIR" show "origin/main:docs/fork-state.md" >/dev/null 2>&1 \
+    || fail "docs/fork-state.md not committed on origin/main"
   # .gitignore keeps the local (PII) research dir out of the public fork
-  git -C "$REPO_DIR" show "origin/$WORK_BRANCH:.gitignore" \
+  git -C "$REPO_DIR" show "origin/main:.gitignore" \
     | grep -qF '/docs/research/' || fail ".gitignore does not exclude /docs/research/"
   # privacy guard: the PII-laden OSINT report must NOT be committed anywhere
-  if git -C "$REPO_DIR" show "origin/$WORK_BRANCH:docs/research/tiny-engineer-osint-2026-08-29.md" \
+  if git -C "$REPO_DIR" show "origin/main:docs/research/tiny-engineer-osint-2026-08-29.md" \
       >/dev/null 2>&1; then
-    fail "PII report committed on $WORK_BRANCH (privacy violation)"
+    fail "PII report committed on origin/main (privacy violation)"
   fi
   echo "branch OK"
 }

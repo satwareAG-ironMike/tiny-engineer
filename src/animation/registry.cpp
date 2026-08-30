@@ -5,27 +5,39 @@
 
 #include "animation/abort.h"
 #include "animation/attention.h"
+#include "animation/dead.h"
 #include "animation/error.h"
 #include "animation/reading.h"
 #include "animation/ring.h"
+#include "animation/sleep_anim.h"
 #include "animation/thinking.h"
 #include "animation/typing.h"
 #include "animation/util.h"
+#include "animation/wakeup.h"
 #include "animation/welcome.h"
 #include "display/eyes/modes/abort.h"
 #include "display/eyes/modes/attention.h"
+#include "display/eyes/modes/dead.h"
 #include "display/eyes/modes/error.h"
 #include "display/eyes/modes/idle.h"
 #include "display/eyes/modes/reading.h"
 #include "display/eyes/modes/ring.h"
 #include "display/eyes/modes/thinking.h"
 #include "display/eyes/modes/typing.h"
+#include "display/eyes/modes/wakeup.h"
 #include "display/eyes/modes/welcome.h"
+#include "sleep.h"
 
 namespace {
 
 void startNoneAt(uint32_t /*nowMs*/) {
   anim::stopAnimServos();
+  // Sleeping: keep chin-down (same pose wakeup starts from).
+  if (isSleeping()) {
+    anim::parkSleepPose();
+    return;
+  }
+
   anim::parkNonePose();
 }
 
@@ -55,6 +67,30 @@ void startErrorAt(uint32_t /*nowMs*/) {
 
 void startAbortAt(uint32_t /*nowMs*/) {
   startAbort();
+}
+
+void startWakeupAt(uint32_t nowMs) {
+  startWakeup(nowMs, true);
+}
+
+void updateWakeupAt(uint32_t nowMs) {
+  if (wakeupFinished()) {
+    return;
+  }
+
+  updateWakeup(nowMs);
+
+  if (wakeupFinished()) {
+    finishAnimation(nowMs);
+  }
+}
+
+void startSleepAt(uint32_t /*nowMs*/) {
+  startSleepAnim();
+}
+
+void startDeadAt(uint32_t /*nowMs*/) {
+  startDead();
 }
 
 constexpr ModeEntry kModes[] = {
@@ -156,6 +192,39 @@ constexpr ModeEntry kModes[] = {
     updateAbort,
     startAbortEyes,
     updateAbortEyes,
+  },
+  {
+    AnimationId::Wakeup,
+    EyeMode::Wakeup,
+    "wakeup",
+    false,
+    -1,
+    startWakeupAt,
+    updateWakeupAt,
+    startWakeupEyes,
+    updateWakeupEyes,
+  },
+  {
+    AnimationId::Sleep,
+    EyeMode::Idle,
+    "sleep",
+    false,
+    -1,
+    startSleepAt,
+    updateSleepAnim,
+    startIdleEyes,
+    updateIdleEyes,
+  },
+  {
+    AnimationId::Dead,
+    EyeMode::Dead,
+    "dead",
+    false,
+    -1,
+    startDeadAt,
+    updateDead,
+    startDeadEyes,
+    updateDeadEyes,
   },
 };
 

@@ -116,6 +116,13 @@ constexpr float ABORT_HEAD_UP =
   servoMid(SERVO_SPECS[SERVO_HEAD]) + 16.0f;
 constexpr float ABORT_HEAD_DIP =
   servoMid(SERVO_SPECS[SERVO_HEAD]) + 5.0f;
+
+// Idle sleep / boot sleep-inertia: chin down, then rise to mid on wake.
+constexpr float SLEEP_HEAD_DOWN_OFFSET_DEG = -20.0f;
+constexpr float SLEEP_HEAD_DOWN =
+  servoMid(SERVO_SPECS[SERVO_HEAD]) + SLEEP_HEAD_DOWN_OFFSET_DEG;
+constexpr float SLEEP_HEAD_AWAKE =
+  servoMid(SERVO_SPECS[SERVO_HEAD]);
 constexpr float ABORT_HAND_RIGHT_UP =
   SERVO_SPECS[SERVO_HAND_RIGHT].max;
 constexpr float ABORT_HAND_RIGHT_SHRUG =
@@ -124,5 +131,9 @@ constexpr float ABORT_HAND_LEFT_UP =
   SERVO_SPECS[SERVO_HAND_LEFT].max - 55.0f;
 constexpr float ABORT_HAND_LEFT_SHRUG =
   SERVO_SPECS[SERVO_HAND_LEFT].max - 43.0f;
+
+// Power-loss collapse: chin fully down, hands parked.
+constexpr float DEAD_HEAD_DOWN = SERVO_SPECS[SERVO_HEAD].min;
+constexpr float DEAD_COLLAPSE_SPEED_DEG_S = 48.0f;
 
 }  // namespace anim

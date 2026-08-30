@@ -12,6 +12,7 @@ Constants cited below match [`include/pins.h`](../../include/pins.h).
 | Adafruit PCA9685 16-channel PWM servo driver | https://www.adafruit.com/product/815 |
 | PowerHD HD-1370A | https://www.chd.hk/Product_Detail.aspx?id=30 |
 | MAX98357A I2S class-D mono amplifier | https://www.aliexpress.us/item/3256805196806369.html |
+| 8 Ω / 1 W mono speaker | https://www.aliexpress.us/item/3256807341987395.html |
 | 0.91" 128×32 OLED (SSD1306, I2C) | https://www.raystar-optronics.com/oled-graphic-display-module/oled-i2c-ssd1306.html |
 | Adafruit 5993 USB-C breakout | https://www.adafruit.com/product/5993 |
 
@@ -28,7 +29,7 @@ Constants cited below match [`include/pins.h`](../../include/pins.h).
 | USB | Native USB on GPIO18/19 — reached via Adafruit 5993 D+/D− (onboard USB-C unused when assembled) |
 | Flash | 4 MB stacked flash on GPIO12–GPIO17 (those GPIOs are **not exposed**) |
 | Onboard RGB | WS2812 on **GPIO10** |
-| Firmware notes | Boot: dim green status. Animations: white (typing/reading/thinking/welcome/ring), pulsing red (attention/error), solid red (abort), off (idle). 1 s fade between non-pulse states. Fatal init errors: solid dim red + hang. See [`docs/api.md`](../../api.md#rgb-led) |
+| Firmware notes | Boot: dim green status. Animations: white (typing/reading/thinking/welcome/ring/wakeup), pulsing red (attention/error/dead), solid red (abort), off (idle/sleep). 1 s fade between non-pulse states. Fatal init errors: solid dim red + hang. See [`docs/api.md`](../../api.md#rgb-led) |
 | BOOT | Button / strapping on **GPIO9** |
 | RESET | Separate RESET button (CHIP_EN), not a GPIO |
 | UART0 silkscreen | TX = GPIO21, RX = GPIO20 |
@@ -99,7 +100,7 @@ Firmware uses **per-servo safe ranges** in [`include/servos.h`](../../include/se
 
 | Field | Value |
 | --- | --- |
-| Exact model | Generic 8 Ω / 1 W mono speaker |
+| Exact model | 8 Ω / 1 W mono speaker (AliExpress listing above) |
 | Quantity | 1 |
 | Purpose | Acoustic output |
 | Operating voltage | Not a voltage-rail device — driven by MAX98357A BTL |

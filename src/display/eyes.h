@@ -18,7 +18,9 @@ enum class EyeMode {
   Welcome,
   Attention,
   Error,
-  Abort
+  Abort,
+  Wakeup,
+  Dead
 };
 
 enum class SleepEyeResult {
@@ -35,6 +37,7 @@ bool eyesActive();
 
 void requestSleepEyeClose(uint32_t now);
 void requestSleepEyeOpen(uint32_t now);
+void clearSleepEyeAnim();
 SleepEyeResult updateSleepEyes(uint32_t now);
 
 void setEyeMode(EyeMode mode, uint32_t now);

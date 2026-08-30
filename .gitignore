@@ -7,6 +7,9 @@ cursor_events.log
 # platform.io
 .pio
 
+# Generated audio payload, rebuilt from assets/ by scripts/copy_assets.py (pre-build)
+data/
+
 # Prerequisites
 *.d
 
@@ -62,3 +65,6 @@ dkms.conf
 
 # debug information files
 *.dwo
+
+# Local research (satware-internal, may contain personal data - not part of upstream mirror)
+/docs/research/

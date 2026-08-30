@@ -41,9 +41,6 @@ const char* settingsWifiPassword();
 bool settingsWifiConfigured();
 bool settingsWifiPasswordSet();
 
-// Hostname used at boot for Wi-Fi/mDNS (frozen after initSettings).
-const char* settingsBootHostname();
-
 bool settingsValidateSleepTimeout(uint32_t sleepTimeoutMin);
 bool settingsValidateHostname(const char* hostname);
 bool settingsValidateVolume(uint8_t volume);

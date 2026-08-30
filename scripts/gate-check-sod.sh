@@ -16,7 +16,7 @@ show_help() {
 gate-check-sod.sh SUBCOMMAND - SOD/OSINT gate oracles (2026-08-29)
 
 Subcommands:
-  drift     main is the exact upstream mirror (main...jamro/main 0/0, branch-independent)
+  drift     main is not behind upstream jamro/main (fork's ahead commits are work, not drift)
   forks     no non-satware fork ahead of upstream; runs selftest (negative control) first
   selftest  negative control: parser must reject ahead_by=1, accept ahead_by=0
   report    daily-ops file contains all required OSINT report sections
@@ -50,15 +50,18 @@ cmd_selftest() {
 }
 
 cmd_drift() {
-  # Invariant: the main branch is an exact mirror of upstream jamro/main.
-  # Anchored on the main ref (not HEAD) so it is branch-independent and stays
-  # green while work lands on feature branches; the per-branch HEAD/origin sync
-  # is a separate concern (see the GIT-CLEAN-IN-SYNC gate, not this one).
-  local counts expected
+  # Invariant (post-merge): main must not sit BEHIND upstream jamro/main
+  # (missed upstream commits = a sync is due: fetch + ff-merge). Ahead
+  # commits are the fork's own work, not drift - the exact-mirror state
+  # ended when the fork's development merged to main.
+  # Anchored on the main ref (not HEAD) so it is branch-independent; the
+  # per-branch HEAD/origin sync is a separate gate (not this one).
+  local counts ahead behind
   counts="$(git -C "$REPO_DIR" rev-list --left-right --count main...jamro/main)" \
     || fail "rev-list failed (fetch jamro/* refs first)"
-  expected="$(printf '0\t0')"
-  [[ "$counts" == "$expected" ]] || fail "main drifts from upstream: $counts"
+  read -r ahead behind <<<"$counts" || true
+  [[ "$behind" == "0" ]] \
+    || fail "main is $behind behind upstream jamro/main (fetch + ff-merge the upstream sync): $counts"
   echo "drift OK"
 }
 

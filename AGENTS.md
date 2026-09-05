@@ -80,7 +80,7 @@ Binding standards for all work in this repository (full satware AG harness rules
 
 | Value | Standard | State |
 |-------|----------|-------|
-| SDD | Work is specified before implementation: `specs/<feature>/spec.md` -> `plan.md` -> `tasks.md`; IPADP L1 via `specs/metadata.json` | Not applied: no `specs/` dir yet. Create it before the next feature |
+| SDD | Work is specified before implementation: `specs/<feature>/spec.md` -> `plan.md` -> `tasks.md`; IPADP L1 via `specs/metadata.json` | Applied: `specs/metadata.json` (IPADP L1, upstream `jamro/tiny-engineer`); first per-feature spec pending |
 | TDD | Test-first from spec (red -> green -> refactor). PlatformIO Unity: `[env:native]` (`platform = native`, `test_framework = unity`, `test_build_src = off`), tests in `test/test_native/` include the pure module `.cpp` under test directly | Applied: `pio test -e native` (20 tests: settings validators, eyes geometry/timing) |
 | Baby Steps | Atomic commits, <200 LOC, one intent; commit format `<type>(<scope>): <msg>`; branches `feat/<scope>`, `fix/<scope>`, `docs/<scope>` | Applied (multi-arch port 2026-08-29) |
 | Quality gate | `pio run -e esp32-c3-devkitm-1 -e esp32dev` green + `pio test -e native` green + hardware boot capture for hardware-facing changes | Applied (build + tests + boot capture) |
@@ -121,6 +121,7 @@ No child AGENTS.md files exist yet. Durable boundaries to doxify when their loca
 | `docs/` | Descriptive docs: api, hardware, wiring, integration, settings, fork-state, learnings |
 | `test/` | PlatformIO Unity tests (native env, `test/test_native/`: `test_main.cpp` runner + per-module suites) |
 | `3d_models/` | Robot body CAD (`cad/`, `parts/`) |
+| `specs/` | SDD specs per feature (`<feature>/spec.md` -> `plan.md` -> `tasks.md`); `metadata.json` owns IPADP L1 dependency metadata |
 | `scripts/` | Build/ops scripts: `copy_assets.py`, `upload_fs_after_upload.py`, `gate-check-sod.sh` |
 
 Root-owned files: `README.md`, `LICENSE`, `platformio.ini`, `partitions.csv`, `package.json`, `assets/` (audio source of truth), `lib/` (scaffold), `.github/workflows/` (CI: ESP autobuild), `.gitleaksignore` (secret-scan fingerprint suppressions). `data/` is a generated, gitignored payload (rebuilt by `scripts/copy_assets.py` pre-build).

@@ -1,0 +1,16 @@
+{
+  "name": "tiny-engineer",
+  "version": "0.1.0",
+  "sdd_source": "https://github.com/satwareAG/spec-kit",
+  "upstream": {
+    "jamro/tiny-engineer": {
+      "url": "https://github.com/jamro/tiny-engineer",
+      "paths": {
+        "code": "src/",
+        "tests": "test/"
+      },
+      "channel": "gh:issues"
+    }
+  },
+  "downstream": {}
+}
